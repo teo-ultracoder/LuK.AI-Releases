@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LuK.AI Workspace</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <hta:application id="oLukAI" applicationname="LukAIWorkspace" border="thin" caption="yes" showintaskbar="yes" singleinstance="yes" sysmenu="yes" windowstate="normal" navigable="yes" scroll="no" />
+    <style>
+        * { box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; margin: 0; }
+        body { font-family: 'Segoe UI', 'Segoe UI Emoji', Arial, sans-serif; color: #292b36; background: #f6f7fb; overflow: hidden; }
+        button, textarea { font: inherit; }
+        button { color: inherit; }
+        .app-shell { display: flex; width: 100%; height: 100%; min-width: 760px; background: #f6f7fb; }
+        .sidebar { width: 310px; min-width: 290px; padding: 26px 20px 20px; display: flex; flex-direction: column; background: #eef0f5; border-right: 1px solid #dce0e9; }
+        .brand { padding: 2px 10px 28px; }
+        .brand-mark { display: inline-block; margin-right: 9px; color: #a99aff; font-size: 27px; vertical-align: middle; }
+        .brand-name { color: #272638; font-size: 24px; font-weight: 650; letter-spacing: .2px; vertical-align: middle; }
+        .brand-caption { margin: 8px 0 0 38px; color: #686c79; font-size: 13px; letter-spacing: .6px; text-transform: uppercase; }
+        .new-chat-btn, .save-btn { width: 100%; padding: 14px 15px; border: 1px solid #d7dbe5; border-radius: 10px; background: #fff; text-align: left; cursor: pointer; font-size: 15px; }
+        .new-chat-btn:hover, .save-btn:hover { background: #e5e8f0; border-color: #c6cad6; }
+        .new-chat-btn { color: #343347; }
+        .history-section { flex: 1; min-height: 0; margin-top: 25px; overflow: hidden; display: flex; flex-direction: column; }
+        .section-label { padding: 0 10px 12px; color: #686c79; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        #historySectionList { flex: 1; min-height: 0; overflow-y: auto; }
+        .history-entry { display: flex; align-items: center; margin: 2px 0; }
+        .history-item { flex: 1; min-width: 0; padding: 11px 12px; overflow: hidden; border: 0; border-radius: 8px; color: #444754; background: transparent; font-size: 15px; line-height: 1.45; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+        .history-item:hover { background: #e1e5ed; color: #242632; }
+        .history-delete { flex: 0 0 32px; width: 32px; height: 32px; border: 0; border-radius: 7px; color: #767987; background: transparent; font-size: 20px; cursor: pointer; }
+        .history-delete:hover { color: #a52d3b; background: #fcebed; }
+        .sidebar-bottom { margin-top: 14px; }
+        .save-btn { margin-bottom: 10px; text-align: center; font-size: 14px; }
+        .status-box { padding: 13px; border: 1px solid #d7dbe5; border-radius: 9px; color: #4e515e; background: #fff; font-size: 13px; line-height: 1.5; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #e0a746; vertical-align: 1px; }
+        .status-box.connected .status-dot { background: #54c994; }
+        .status-box.error .status-dot { background: #ed6b75; }
+        .engine-retry { display: none; margin-top: 10px; padding: 7px 10px; border: 1px solid #d3d6e0; border-radius: 7px; color: #383a46; background: #f0f1f6; cursor: pointer; font-size: 13px; }
+        .main-panel { position: relative; flex: 1; min-width: 0; height: 100%; background: radial-gradient(ellipse at 52% 0%, #fff 0%, #f4f5fa 68%); }
+        .chat-workspace { display: flex; width: 100%; height: 100%; flex-direction: column; }
+        .chat-topbar { min-height: 64px; padding: 0 30px; display: flex; align-items: center; border-bottom: 1px solid #e1e3eb; background: rgba(255,255,255,.9); }
+        .chat-topbar-title { color: #35344d; font-size: 17px; font-weight: 600; }
+        .chat-scroll-wrapper { flex: 1; min-height: 0; overflow-y: auto; padding: 28px 24px; }
+        .chat-history { width: 100%; max-width: 790px; margin: 0 auto; }
+        .message-row { display: flex; align-items: flex-start; margin: 0 0 28px; }
+        .message-row.user { justify-content: flex-end; }
+        .avatar { flex: 0 0 30px; width: 30px; height: 30px; margin: 2px 13px 0 0; border: 1px solid #d8d3ef; border-radius: 10px; color: #5b4ba4; background: #eeebfa; text-align: center; line-height: 28px; font-size: 10px; font-weight: 700; }
+        .message-row.user .avatar { display: none; }
+        .message-content { min-width: 0; flex: 1; }
+        .message-row.user .message-content { flex: 0 1 auto; max-width: 78%; padding: 13px 17px; border: 1px solid #d6def1; border-radius: 18px 18px 5px 18px; background: #e9eefb; }
+        .sender-name { margin: 1px 0 7px; color: #424451; font-size: 14px; font-weight: 650; }
+        .message-row.user .sender-name { margin-top: 0; color: #60647a; font-size: 12px; text-align: right; }
+        .text-payload { color: #30323c; font-family: 'Segoe UI', 'Segoe UI Emoji', Arial, sans-serif; font-size: 16px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word; }
+        .message-row.user .text-payload { color: #282b36; font-size: 15px; line-height: 1.6; }
+        .assistant-prose p { margin: 0 0 12px; }
+        .assistant-prose p:last-child { margin-bottom: 0; }
+        .assistant-prose h1, .assistant-prose h2, .assistant-prose h3 { margin: 19px 0 9px; color: #292a36; line-height: 1.35; }
+        .assistant-prose h1 { font-size: 22px; }
+        .assistant-prose h2 { font-size: 19px; }
+        .assistant-prose h3 { font-size: 17px; }
+        .assistant-prose ul, .assistant-prose ol { margin: 4px 0 14px; padding-left: 25px; }
+        .assistant-prose li { margin: 4px 0; padding-left: 3px; }
+        .assistant-prose strong { color: #252632; font-weight: 700; }
+        .assistant-prose em { color: #514d66; }
+        .assistant-prose code.inline-code { padding: 2px 5px; border: 1px solid #d9dbe4; border-radius: 4px; color: #514298; background: #f0eff7; font-family: Consolas, 'Courier New', monospace; font-size: 13px; }
+        .code-block { margin: 14px 0 17px; overflow: hidden; border: 1px solid #d6d9e2; border-radius: 9px; background: #f5f6f9; }
+        .code-language { padding: 7px 12px; border-bottom: 1px solid #dfe1e8; color: #555968; background: #ebedf3; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; }
+        .code-block pre { max-width: 100%; margin: 0; padding: 14px 16px; overflow-x: auto; color: #292c37; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.6; tab-size: 4; white-space: pre; }
+        .attachment-pill { display: inline-block; margin: 10px 6px 0 0; padding: 5px 8px; border: 1px solid #d6d9e2; border-radius: 7px; color: #555968; font-size: 12px; }
+        .input-area-footer { padding: 12px 24px 19px; }
+        .input-box-container { position: relative; width: 100%; max-width: 790px; margin: 0 auto; padding: 10px 11px 9px; border: 1px solid #d5d8e2; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(36,40,56,.08); }
+        .format-toolbar { display: none; position: absolute; left: 12px; bottom: calc(100% + 8px); z-index: 5; align-items: center; padding: 4px; border: 1px solid #d4d7e0; border-radius: 8px; background: #fff; box-shadow: 0 7px 20px rgba(36,40,56,.16); }
+        .format-toolbar.visible { display: flex; }
+        .format-button { width: 34px; height: 30px; margin: 0 2px; border: 0; border-radius: 5px; color: #343542; background: transparent; cursor: pointer; font-size: 15px; }
+        .format-button:hover, .format-button:focus { outline: 0; background: #eceef4; }
+        .format-button.bold-symbol { font-weight: 700; }
+        .format-button.italic-symbol { font-style: italic; }
+        .format-button.underline-symbol { text-decoration: underline; }
+        .staging-tray { display: none; padding: 0 2px 8px; }
+        .staged-item { display: inline-block; margin: 0 6px 4px 0; padding: 5px 8px; border: 1px solid #d6d9e2; border-radius: 7px; color: #424552; background: #f0f1f5; font-size: 12px; }
+        .remove-stage-btn { margin-left: 6px; color: #5747ad; cursor: pointer; }
+        .input-row-controls { display: flex; align-items: flex-end; }
+        #userInputText { flex: 1; min-width: 0; min-height: 48px; max-height: 150px; padding: 12px 9px; resize: vertical; border: 0; outline: 0; color: #282a35; background: transparent; font-family: 'Segoe UI', 'Segoe UI Emoji', Arial, sans-serif; font-size: 15px; line-height: 1.5; }
+        #userInputText::placeholder { color: #777b88; }
+        .attach-btn, .send-btn { height: 42px; margin-left: 7px; padding: 0 13px; border: 1px solid #d4d7e0; border-radius: 9px; color: #383a46; background: #f0f1f6; font-size: 13px; cursor: pointer; }
+        .attach-btn:hover { background: #e5e7ef; }
+        .send-btn { min-width: 78px; border-color: #5b50b6; color: #fff; background: #5b50b6; font-weight: 700; }
+        .send-btn:hover { background: #4d439f; }
+        .send-btn:disabled, .attach-btn:disabled, #userInputText:disabled { opacity: .55; cursor: default; }
+        .input-hint { width: 100%; max-width: 790px; margin: 7px auto 0; color: #686c79; font-size: 12px; text-align: center; }
+        .empty-history { padding: 12px 10px; color: #686c79; font-size: 14px; line-height: 1.5; }
+        @media (max-width: 960px) { .sidebar { width: 280px; min-width: 260px; } }
+    </style>
+    <script language="VBScript">
+        Option Explicit
+        Dim shell, fso, scriptDir
+        Set shell = CreateObject("WScript.Shell")
+        Set fso = CreateObject("Scripting.FileSystemObject")
+
+        Sub Window_OnLoad
+            Dim filePath, localDataPath, jsWorkspacePath, jsLocalDataPath
+            window.resizeTo 1240, 860
+            filePath = Replace(document.location.pathname, "/", "\")
+            filePath = Replace(filePath, "%20", " ")
+            If Left(filePath, 1) = "\" Then filePath = Mid(filePath, 2)
+            scriptDir = fso.GetAbsolutePathName(fso.GetParentFolderName(filePath)) & "\"
+            shell.Run "cmd.exe /c ollama serve", 0, False
+            localDataPath = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%")
+            jsWorkspacePath = Replace(scriptDir, "\", "\\")
+            jsWorkspacePath = Replace(jsWorkspacePath, "'", "\'")
+            jsLocalDataPath = Replace(localDataPath, "\", "\\")
+            jsLocalDataPath = Replace(jsLocalDataPath, "'", "\'")
+            window.setTimeout "initializeWorkspaceUI('" & jsWorkspacePath & "','" & jsLocalDataPath & "')", 250
+        End Sub
+
+        Sub Window_OnUnload
+            ' Leave Ollama running; it may be shared by other local applications.
+        End Sub
+    </script>
+    <script src="Luk_ui.js"></script>
+    <script src="luk_core.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">✦</span><span class="brand-name">LuK.AI</span>
+                <div class="brand-caption">Your local AI workspace</div>
+            </div>
+            <button class="new-chat-btn" onclick="initNewSessionWindow()">＋ &nbsp;New chat</button>
+            <div class="history-section">
+                <div class="section-label" id="historySectionTitle">Recent sessions</div>
+                <div id="historySectionList"><div class="empty-history">Your saved conversations will appear here.</div></div>
+            </div>
+            <div class="sidebar-bottom">
+                <button class="save-btn" onclick="refreshSavedChats()">Load chats</button>
+                <div class="status-box" id="engineStatus"><span class="status-dot"></span><span id="engineStatusText">Starting LuK.AI…</span><button class="engine-retry" id="engineRetry" onclick="retryEngineStartup()">Retry connection</button></div>
+            </div>
+        </aside>
+        <main class="main-panel">
+            <section class="chat-workspace" id="chatWorkspace">
+                <header class="chat-topbar"><span class="chat-topbar-title">LuK.AI · Local chat</span></header>
+                <div class="chat-scroll-wrapper" id="chatScrollWrapper"><div class="chat-history" id="chatHistoryContainer"></div></div>
+                <div class="input-area-footer">
+                    <div class="input-box-container">
+                        <div class="staging-tray" id="stagingTray"></div>
+                        <div class="input-row-controls">
+                            <div class="format-toolbar" id="formatToolbar" role="toolbar" aria-label="Text formatting">
+                                <button type="button" class="format-button bold-symbol" title="Bold" aria-label="Bold" onmousedown="preserveComposerSelection(event)" onclick="applyComposerFormat('bold')">B</button>
+                                <button type="button" class="format-button italic-symbol" title="Italic" aria-label="Italic" onmousedown="preserveComposerSelection(event)" onclick="applyComposerFormat('italic')">I</button>
+                                <button type="button" class="format-button underline-symbol" title="Underline" aria-label="Underline" onmousedown="preserveComposerSelection(event)" onclick="applyComposerFormat('underline')">U</button>
+                            </div>
+                            <textarea id="userInputText" onfocus="showComposerFormattingToolbar()" onblur="scheduleComposerToolbarHide()" onkeydown="catchInputEnter(event)" placeholder="Message LuK.AI… (Enter to send, Shift+Enter for a new line)"></textarea>
+                            <input type="file" id="hiddenFileInput" accept=".txt,.md,.csv,.json,.xml,.html,.htm,.css,.js,.ts,.py,.log,.yaml,.yml,.ini" style="display:none" onchange="handleFileSelection()" />
+                            <button class="attach-btn" id="attachBtn" onclick="triggerFileInjector()">＋ Attach text</button>
+                            <button class="send-btn" id="sendBtn" onclick="processingPromptQueue()">Send</button>
+                        </div>
+                    </div>
+                    <div class="input-hint">Your conversations stay on this device</div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

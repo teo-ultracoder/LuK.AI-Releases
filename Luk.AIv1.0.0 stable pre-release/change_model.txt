@@ -1,0 +1,13 @@
+All models should be pre-downloaded by the user from Ollama. 
+Download Ollama from https://ollama.com/download/windows
+Pull the models listed below.(command: ollama pull [MODEL CHOSEN INCLUDING MODEL TAG])
+
+If you have changed the model in approved_model.txt, please open Powershell
+and type this command in:
+
+$path = Join-Path $env:LOCALAPPDATA 'LuK.AI\approved_model.txt'
+[System.IO.File]::WriteAllText($path, '[MODEL SELECTED]', [System.Text.Encoding]::UTF8)
+
+[MODEL SELECTED]:llama3.2:3b/gemma2:2b/qwen2.5:0.5b/llama3.2:1b/qwen3.6:27b
+
+WARNING: Only use qwen3.6:27b if your computer has up to 30 GB of free disk space.
